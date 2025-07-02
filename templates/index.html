@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机点名系统</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            padding-top: 5rem;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        #result {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: #3498db;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .highlight {
+            animation: highlight 1s ease;
+        }
+        @keyframes highlight {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h2 class="text-center mb-4">随机点名系统</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <select class="form-select" name="class_num" required>
+                                <option value="">请选择班级</option>
+                                {% for class in classes %}
+                                <option value="{{ class }}" 
+                                        {% if selected_class == class %}selected{% endif %}>
+                                    {{ class }}班
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">开始随机点名</button>
+                    </form>
+
+                    {% if selected_student %}
+                    <div class="mt-4 text-center">
+                        <div class="card p-3 bg-light">
+                            <h5 class="text-muted mb-2">抽中学生：</h5>
+                            <div id="result" class="highlight">{{ selected_student }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

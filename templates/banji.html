@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+        }
+        
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        .page-header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #e3e6f0;
+            padding-bottom: 1rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid #e3e6f0;
+            font-weight: bold;
+            color: var(--primary-color);
+            border-radius: 0.35rem 0.35rem 0 0 !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            padding: 1.5rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .nav-tabs {
+            border-bottom: 1px solid #e3e6f0;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--secondary-color);
+            font-weight: 600;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            border-bottom: 3px solid var(--primary-color);
+            background: transparent;
+        }
+        
+        .page-title {
+            color: var(--dark-color);
+            font-weight: 700;
+        }
+        
+        .stats-card {
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .stats-card .card-header {
+            background-color: white;
+        }
+        
+        .stats-card .card-body {
+            padding: 1.25rem;
+        }
+        
+        .stats-card .card-footer {
+            background-color: white;
+            border-radius: 0 0.35rem 0 0 !important;
+        }
+        
+        .action-btn {
+            margin-right: 0.5rem;
+        }
+        
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+            color: var(--secondary-color);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        @media (max-width: 768px) {
+            .card {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid px-0">
+    <div class="row">
+        <!-- 侧边栏 -->
+        <div class="col-lg-2 col-md-3 d-none d-md-block sidebar py-3">
+            <div class="list-group">
+                <a href="#" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    班级管理
+                </a>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="col-lg-10 col-md-9 ms-sm-auto px-4 py-3">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2 page-title">班级管理系统</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-download me-1"></i>导出
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-print me-1"></i>打印
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加班级表单 -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-plus-circle me-2"></i>添加新班级</span>
+                    <div class="form-group">
+                        <form method="post" class="d-flex">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="number" name="new_id" placeholder="输入新班级编号" required class="form-control">
+                                <button type="submit" name="add_banji" class="btn btn-primary">
+                                    <i class="fas fa-plus me-1"></i>添加
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 班级列表 -->
+            <div class="table-container">
+                <h5 class="mb-3"><i class="fas fa-list me-2"></i>班级列表</h5>
+                
+                {% if banji_list %}
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {% for banji in banji_list %}
+                    <div class="col mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ banji }}班</h5>
+                                <p class="card-text">班级编号: {{ banji }}</p>
+                                <div class="d-flex justify-content-end">
+                                    <a href="{% url 'manage_students' banji %}" class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="fas fa-users me-1"></i>管理学生
+                                    </a>
+                                    <form method="post" class="d-inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="delete_banji" value="{{ banji }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash-alt me-1"></i>删除
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white border-top-0">
+                                <small class="text-muted"><i class="far fa-clock me-1"></i>最后更新: {{ banji.last_update|date:"Y-m-d H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-folder-open"></i>
+                    <h5>暂无班级数据</h5>
+                    <p>请添加新班级以开始管理</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
