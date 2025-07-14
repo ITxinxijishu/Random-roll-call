@@ -12,6 +12,7 @@ from .models import Student, Class
 from django.shortcuts import render, redirect
 from .file_utils import *
 from django.db.models import Count, Q, Max
+from django.db.models import Subquery, OuterRef  # 添加导入
 
 def manage_banji(request):
     # 班级管理
@@ -51,8 +52,20 @@ def manage_students(request, class_id):
     students = read_class_students(class_id)
     
     if request.method == 'POST':
-        # 添加学生
-        if 'add_student' in request.POST:
+        # 批量添加学生
+        if 'add_students' in request.POST:
+            new_names = request.POST.get('new_names', '').strip()
+            if new_names:
+                # 按行分割并过滤空行
+                name_list = [name.strip() for name in new_names.split('\n') if name.strip()]
+                # 添加不重复的学生
+                for name in name_list:
+                    if name not in students:
+                        students.append(name)
+                save_class_students(class_id, students)
+        
+        # 添加单个学生
+        elif 'add_student' in request.POST:
             new_name = request.POST.get('new_name')
             if new_name and new_name not in students:
                 students.append(new_name)
@@ -247,11 +260,26 @@ def attendance_statistics(request):
         last_time=Max('timestamp')
     ).order_by('-timestamp__date')
     
-    # 按学生分组统计
+    # 按学生分组统计（修改前）
     student_stats = Attendance.objects.values('student_name').annotate(
         total_attendances=Count('id'),
         last_time=Max('timestamp')
     ).order_by('-total_attendances')
+    
+    # 修改为包含班级名称
+    # 按班级分组统计总次数（用于子查询）
+    class_total = Attendance.objects.filter(
+    class_name=OuterRef('class_name')
+    ).values('class_name').annotate(
+    total=Count('id')
+    ).values('total')
+    
+    # 修改学生统计查询，添加班级总次数
+    student_stats = Attendance.objects.values('class_name', 'student_name').annotate(
+    total_attendances=Count('id'),
+    class_total=Subquery(class_total[:1]),  # 添加班级总次数
+    last_time=Max('timestamp')
+    ).order_by('class_name', 'student_name')
     
     # 按班级和学生分组统计
     class_student_stats = Attendance.objects.values(
@@ -277,12 +305,19 @@ def attendance_statistics(request):
         last_time=Max('timestamp')
     ).order_by('-total_attendances')
     
-    return render(request, "attendance/statistics.html", {
+    # 计算总点名次数
+    total_attendances = Attendance.objects.count()
+    
+    context = {
         'classes': classes,
         'class_stats': class_stats,
         'date_stats': date_stats,
         'student_stats': student_stats,
         'class_student_stats': class_student_stats,
         'date_student_stats': date_student_stats,
-        'class_date_stats': class_date_stats
-    })
+        'class_date_stats': class_date_stats,
+        'stat': {
+            'total_attendances': total_attendances or 1  # 防止除零错误
+        }
+    }
+    return render(request, 'attendance/statistics.html', context)

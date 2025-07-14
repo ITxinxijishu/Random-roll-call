@@ -14,11 +14,56 @@
             --danger-color: #e74a3b;
             --light-color: #f8f9fc;
             --dark-color: #5a5c69;
+            /* 添加玻璃效果变量 */
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
         }
         
         body {
-            background-color: #f8f9fc;
+            /* 修改为渐变背景 */
+            background: linear-gradient(135deg, #e0f7ff 0%, #bbdefb 100%);
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container-fluid {
+            padding: 20px;
+        }
+        
+        /* 侧边栏玻璃效果 */
+        .sidebar {
+            background: var(--glass-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            margin: 15px;
+            padding: 20px !important;
+        }
+        
+        /* 主内容区玻璃效果 */
+        .col-lg-10.col-md-9.ms-sm-auto.px-4.py-3 {
+            background: var(--glass-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            margin: 15px;
+            padding: 30px !important;
+        }
+        
+        .card,
+        .table-container {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(8px);
+        }
+        
+        .card-header {
+            background: rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid var(--glass-border);
         }
         
         .page-header {
@@ -132,6 +177,12 @@
             color: var(--dark-color);
         }
         
+        .header-actions {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
         @media (max-width: 768px) {
             .card {
                 margin-bottom: 1rem;
@@ -149,23 +200,40 @@
                     <i class="fas fa-tachometer-alt me-2"></i>
                     班级管理
                 </a>
+                <a href="{% url 'attendance_statistics' %}" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    点名统计
+                </a>
             </div>
         </div>
 
         <!-- 主内容区 -->
         <div class="col-lg-10 col-md-9 ms-sm-auto px-4 py-3">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2 page-title">班级管理系统</h1>
-                <div class="btn-toolbar mb-2 mb-md-0">
-                    <div class="btn-group me-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-download me-1"></i>导出
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-print me-1"></i>打印
-                        </button>
-                    </div>
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4">
+                <h1 class="h2 page-title me-4">班级管理系统</h1>
+                
+                <!-- 横向胶囊导航 -->
+                <div class="nav-container glass-effect">
+                    <ul class="nav nav-pills nav-justified" id="nav-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" id="class-management-tab" href="#" role="tab" aria-selected="true">
+                                <i class="fas fa-tachometer-alt me-1"></i>班级管理
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="attendance-statistics-tab" href="{% url 'attendance_statistics' %}" role="tab" aria-selected="false">
+                                <i class="fas fa-chart-bar me-1"></i>点名统计
+                            </a>
+                        </li>
+                    </ul>
                 </div>
+            </div>
+
+            <!-- 返回按钮 -->
+            <div class="header-actions">
+                <a href="{% url 'index' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>返回随机点名页面
+                </a>
             </div>
 
             <!-- 添加班级表单 -->
@@ -198,7 +266,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">{{ banji }}班</h5>
                                 <p class="card-text">班级编号: {{ banji }}</p>
-                                <div class="d-flex justify-content-end">
+                                <div class="d-flex">
                                     <a href="{% url 'manage_students' banji %}" class="btn btn-sm btn-outline-primary me-2">
                                         <i class="fas fa-users me-1"></i>管理学生
                                     </a>
@@ -212,7 +280,7 @@
                                 </div>
                             </div>
                             <div class="card-footer bg-white border-top-0">
-                                <small class="text-muted"><i class="far fa-clock me-1"></i>最后更新: {{ banji.last_update|date:"Y-m-d H:i" }}</small>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i>最后更新: {{ banji.last_update|date:"Y年m月d日 H:i" }}</small>
                             </div>
                         </div>
                     </div>
@@ -233,3 +301,47 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+
+<style>
+    /* ... 保留现有样式 ... */
+    
+    /* 胶囊导航容器样式 */
+    .nav-container {
+        min-width: 300px;
+        background: var(--glass-bg);
+        border-radius: 30px;
+        box-shadow: var(--shadow);
+        border: 1px solid var(--glass-border);
+        padding: 5px;
+    }
+    
+    /* 胶囊导航项样式 */
+    .nav-pills .nav-link {
+        border-radius: 20px;
+        color: var(--text-color);
+        margin: 0 5px;
+        transition: all 0.3s ease;
+        background: transparent;
+    }
+    
+    .nav-pills .nav-link.active {
+        background-color: var(--primary-color);
+        color: white;
+        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.25);
+    }
+    
+    .nav-pills .nav-link:not(.active):hover {
+        background-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* 移除原侧边栏 */
+    .sidebar {
+        display: none !important;
+    }
+    
+    /* 调整主内容区宽度 */
+    .col-lg-10.col-md-9.ms-sm-auto.px-4.py-3 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+</style>
